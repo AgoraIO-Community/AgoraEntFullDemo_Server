@@ -47,7 +47,7 @@ public class UserBlacklistServiceImpl extends ServiceImpl<UserBlacklistMapper, U
             // cache a random time within 12 hours to avoid large number of keys expiring at
             // the same time
             int randomTime = 12 + new Random().nextInt(12);
-            redisTemplate.opsForValue().set(redisKey, userBlacklist, randomTime,
+            redisTemplate.opsForValue().set(redisKey, "ok", randomTime,
                     TimeUnit.HOURS);
             log.info("mobile {} is in blacklist,it will be expired in {} hours", mobile, randomTime);
             return true;

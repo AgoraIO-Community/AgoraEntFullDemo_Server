@@ -22,6 +22,14 @@ import javax.validation.ConstraintViolationException;
 @Slf4j
 public class BaseGlobalExceptionHandler {
 
+    @ExceptionHandler({Exception.class})
+    @ResponseBody
+    @ResponseStatus(value = HttpStatus.INTERNAL_SERVER_ERROR)
+    public BaseResult<?> internalExceptionHandler(Exception exception) {
+        log.info("Internal server error ex={}", exception.getMessage());
+        return BaseResult.error(500,"Internal Server Error");
+    }
+
     @ExceptionHandler({BaseException.class})
     @ResponseBody
     @ResponseStatus(value = HttpStatus.OK)
@@ -69,4 +77,5 @@ public class BaseGlobalExceptionHandler {
         log.info("[httpMessageNotReadableExceptionHandle]请求参数错误 ex={}", exception.getMessage());
         return BaseResult.error(HttpStatus.BAD_REQUEST.value(), exception.getMessage());
     }
+
 }
