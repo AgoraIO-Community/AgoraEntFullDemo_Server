@@ -23,6 +23,7 @@ public enum ErrorCodeEnum {
     real_name_auth_inconsistent(10012, "用户实名认证校验不⼀致"),
     real_name_auth_param_illegal(10013, "用户实名参数非法"),
     real_name_auth_exceed_limit(10014, "用户实名认证次数超限"),
+    user_blacklisted(10015, "登录异常，有问题请联系 se-product@agora.io"),
 
     /**
      * 房间
@@ -37,7 +38,6 @@ public enum ErrorCodeEnum {
     seat_was(20008, "座位上有人"),
     password_is_not_correct(20009, "密码不正确"),
     please_enter_password(20010, "请输入密码"),
-
 
     /**
      * 上传
@@ -65,7 +65,9 @@ public enum ErrorCodeEnum {
     mic_is_cannot_be_modified(50008, "麦位当前状态不允许被修改为目标状态"),
     mic_not_current_user(50009, "麦位不是当前人"),
     mic_index_is_not_null(50010, "麦位索引不允许为空"),
-    mic_index_is_not_free(50011, "麦位不是空闲麦位");;
+    mic_index_is_not_free(50011, "麦位不是空闲麦位");
+    ;
+
     private final Integer code;
 
     private final String message;

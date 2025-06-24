@@ -114,8 +114,14 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     @Value("${realNameAuth.errTimesThreshold}")
     private Integer realNameAuthErrTimesThreshold;
 
+    @Resource
+    private UserBlacklistService userBlacklistService;
+
     @Override
     public BaseResult<String> verificationCode(String phone) {
+        if (userBlacklistService.isMobileBlacklisted(phone)) {
+            throw new BaseException(ErrorCodeEnum.user_blacklisted, ErrorCodeEnum.user_blacklisted.getMessage());
+        }
         if (redisTemplate.hasKey(phone)) {
             throw new BaseException(ErrorCodeEnum.code_repeat, ErrorCodeEnum.code_repeat.getMessage());
         }
@@ -161,6 +167,12 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
                 users.setRealNameVerifyStatus(0);
                 baseMapper.insert(users);
             }
+
+            // 检查用户是否在黑名单中
+            if (userBlacklistService.isMobileBlacklisted(phone)) {
+                throw new BaseException(ErrorCodeEnum.user_blacklisted, ErrorCodeEnum.user_blacklisted.getMessage());
+            }
+
             BeanUtil.copyProperties(users, userInfo);
         } else {
             Long times = redisTemplate.opsForValue().increment(CommonKey.verificationCheckCodeTimes + phone);
