@@ -400,4 +400,18 @@ CREATE TABLE user_verification_log
 ) engine = InnoDB
   default charset = utf8mb4 COMMENT ='用户认证日志表';
 
+-- 用户黑名单表
+CREATE TABLE `user_blacklist`
+(
+    `id`          BIGINT PRIMARY KEY                        not null AUTO_INCREMENT,
+    `mobile`      varchar(20)                               not null comment '用户手机号',
+    `reason`      varchar(255)                              not null comment '加入黑名单原因',
+    `operator`    varchar(100)                              not null comment '操作人',
+    `created_at`  timestamp(3) default CURRENT_timestamp(3) not null comment '创建时间',
+    `updated_at`  timestamp(3) default CURRENT_timestamp(3) not null on update CURRENT_timestamp(3) comment '最近修改时间',
+    UNIQUE KEY uk_mobile (mobile),
+    INDEX idx_created_at (created_at)
+) engine = InnoDB
+  default charset = utf8mb4 COMMENT ='用户黑名单表';
+
 
