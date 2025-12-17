@@ -82,7 +82,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     private JwtUtil jwtUtil;
 
     @Resource
-    private YidunUtils yidunUtils;
+    private YiDunUtils yidunUtils;
 
     @Resource
     private RoomUsersService roomUsersService;

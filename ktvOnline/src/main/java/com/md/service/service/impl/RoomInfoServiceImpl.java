@@ -23,7 +23,7 @@ import com.md.service.service.RoomUsersService;
 import com.md.service.service.UsersService;
 import com.md.service.utils.MdStringUtils;
 import com.md.service.utils.RtmTokenBuilderSample;
-import com.md.service.utils.YidunUtils;
+import com.md.service.utils.YiDunUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.security.Credential;
 import org.redisson.api.RLock;
@@ -60,7 +60,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
     private RoomSongService roomSongService;
 
     @Resource
-    private YidunUtils yidunUtils;
+    private YiDunUtils yidunUtils;
 
     @Resource
     private RtmTokenBuilderSample rtmTokenBuilderSample;
