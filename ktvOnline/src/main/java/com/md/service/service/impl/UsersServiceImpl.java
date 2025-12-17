@@ -82,7 +82,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
     private JwtUtil jwtUtil;
 
     @Resource
-    private TupuUtils tupuUtils;
+    private YidunUtils yidunUtils;
 
     @Resource
     private RoomUsersService roomUsersService;
@@ -202,7 +202,7 @@ public class UsersServiceImpl extends ServiceImpl<UsersMapper, Users> implements
             users.setHeadUrl(form.getHeadUrl());
         }
         if (StringUtils.isNoneBlank(form.getName())) {
-            tupuUtils.checkTupuText(form.getName());
+            yidunUtils.checkYidunText(form.getName());
             users.setName(form.getName());
         }
         if (StringUtils.isNoneBlank(form.getSex())) {

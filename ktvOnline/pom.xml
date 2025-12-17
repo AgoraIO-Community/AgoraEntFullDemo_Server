@@ -238,6 +238,11 @@
             <version>1.70</version>
             <scope>compile</scope>
         </dependency>
+        <dependency>
+            <groupId>com.netease.yidun</groupId>
+            <artifactId>yidun-java-sdk</artifactId>
+            <version>1.5.0</version>
+        </dependency>
     </dependencies>
 
     <build>
