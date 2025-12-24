@@ -66,21 +66,43 @@ public class YiDunUtils {
             }
 
             TextCheckResult result = response.getResult();
-            if (result != null && result.getAntispam() != null) {
-                TextCheckResult.Antispam antispam = result.getAntispam();
+            if (result == null) {
+                log.info("Yidun text moderation result is null, treat as pass - content: {}", msg);
+                return;
+            }
 
-                // suggestion: 0-pass, 1-suspect, 2-reject
-                Integer suggestion = antispam.getSuggestion();
-                if (suggestion != null && suggestion == 2) {
-                    log.warn("Yidun detected illegal content - suggestion: {}, content: {}", suggestion, msg);
-                    throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
-                } else if (suggestion != null && suggestion == 1) {
-                    log.warn("Yidun detected suspicious content - suggestion: {}, content: {}", suggestion, msg);
-                }
+            if (result.getAntispam() == null) {
+                log.info("Yidun text moderation antispam is null, treat as pass - content: {}", msg);
+                return;
+            }
 
-                if (antispam.getLabels() != null && !antispam.getLabels().isEmpty()) {
-                    log.debug("Yidun detected labels: {}", antispam.getLabels());
-                }
+            TextCheckResult.Antispam antispam = result.getAntispam();
+
+            // suggestion: 0-pass, 1-suspect, 2-reject (consistent with Go implementation)
+            Integer suggestion = antispam.getSuggestion();
+            if (suggestion == null) {
+                // suggestion is null, treat as pass (consistent with Go implementation)
+                log.info("Yidun text moderation passed - suggestion: null, content: {}", msg);
+                return;
+            }
+
+            // Check suspicious content first (consistent with Go implementation)
+            if (suggestion == 1) {
+                log.warn("Yidun detected suspicious content - suggestion: {}, content: {}", suggestion, msg);
+                return;
+            }
+
+            // Check rejected content (consistent with Go implementation)
+            if (suggestion == 2) {
+                log.error("Yidun detected illegal content - suggestion: {}, content: {}", suggestion, msg);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
+            }
+
+            // suggestion == 0 or other values, treat as pass (consistent with Go implementation)
+            log.info("Yidun text moderation passed - suggestion: {}, content: {}", suggestion, msg);
+
+            if (antispam.getLabels() != null && !antispam.getLabels().isEmpty()) {
+                log.debug("Yidun detected labels: {}", antispam.getLabels());
             }
 
         } catch (BaseException e) {
@@ -126,21 +148,42 @@ public class YiDunUtils {
                 return;
             }
 
-            if (response.getResult() != null && !response.getResult().isEmpty()) {
-                ImageV5Result result = response.getResult().get(0);
-                if (result.getAntispam() != null) {
-                    ImageV5AntispamResp antispam = result.getAntispam();
-
-                    // suggestion: 0-pass, 1-suspect, 2-reject
-                    Integer suggestion = antispam.getSuggestion();
-                    if (suggestion != null && suggestion == 2) {
-                        log.warn("Yidun detected illegal content - imageUrl: {}", imageUrl);
-                        throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
-                    } else if (suggestion != null && suggestion == 1) {
-                        log.warn("Yidun detected suspicious image - suggestion: {}, imageUrl: {}", suggestion, imageUrl);
-                    }
-                }
+            // Check if result is empty, if so, treat as pass (consistent with Go implementation)
+            if (response.getResult() == null || response.getResult().isEmpty()) {
+                log.info("Yidun image moderation response result is empty, treat as pass - imageUrl: {}", imageUrl);
+                return;
             }
+
+            ImageV5Result result = response.getResult().get(0);
+            if (result.getAntispam() == null) {
+                log.info("Yidun image moderation antispam is null, treat as pass - imageUrl: {}", imageUrl);
+                return;
+            }
+
+            ImageV5AntispamResp antispam = result.getAntispam();
+
+            // suggestion: 0-pass, 1-suspect, 2-reject (consistent with Go implementation)
+            Integer suggestion = antispam.getSuggestion();
+            if (suggestion == null) {
+                // suggestion is null, treat as pass (consistent with Go implementation)
+                log.info("Yidun image moderation passed - suggestion: null, imageUrl: {}", imageUrl);
+                return;
+            }
+
+            // Check suspicious content first (consistent with Go implementation)
+            if (suggestion == 1) {
+                log.warn("Yidun detected suspicious image - suggestion: {}, imageUrl: {}", suggestion, imageUrl);
+                return;
+            }
+
+            // Check rejected content (consistent with Go implementation)
+            if (suggestion == 2) {
+                log.error("Yidun detected illegal content - suggestion: {}, imageUrl: {}", suggestion, imageUrl);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
+            }
+
+            // suggestion == 0 or other values, treat as pass (consistent with Go implementation)
+            log.info("Yidun image moderation passed - suggestion: {}, imageUrl: {}", suggestion, imageUrl);
 
         } catch (BaseException e) {
             throw e;
