@@ -8,8 +8,6 @@ import com.netease.yidun.sdk.antispam.image.v5.check.sync.request.ImageV5SyncChe
 import com.netease.yidun.sdk.antispam.image.v5.check.sync.response.ImageV5CheckResponse;
 import com.netease.yidun.sdk.antispam.image.v5.check.sync.response.ImageV5Result;
 import com.netease.yidun.sdk.antispam.image.v5.check.sync.response.ImageV5AntispamResp;
-import com.netease.yidun.sdk.antispam.image.v5.check.sync.response.ImageV5LabelDetail;
-import com.netease.yidun.sdk.antispam.image.v5.check.sync.response.ImageV5SubLabelDetail;
 import com.netease.yidun.sdk.antispam.text.TextClient;
 import com.netease.yidun.sdk.antispam.text.v5.check.sync.single.TextCheckRequest;
 import com.netease.yidun.sdk.antispam.text.v5.check.sync.single.TextCheckResponse;
@@ -136,14 +134,8 @@ public class YiDunUtils {
                     // suggestion: 0-pass, 1-suspect, 2-reject
                     Integer suggestion = antispam.getSuggestion();
                     if (suggestion != null && suggestion == 2) {
-                        boolean isPolitics = isPoliticsContent(antispam);
-                        if (isPolitics) {
-                            log.warn("Yidun detected politics content - imageUrl: {}", imageUrl);
-                            throw new BaseException(ErrorCodeEnum.please_dont_upload_contains_politically_sensitive_content);
-                        } else {
-                            log.warn("Yidun detected illegal content - imageUrl: {}", imageUrl);
-                            throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
-                        }
+                        log.warn("Yidun detected illegal content - imageUrl: {}", imageUrl);
+                        throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
                     } else if (suggestion != null && suggestion == 1) {
                         log.warn("Yidun detected suspicious image - suggestion: {}, imageUrl: {}", suggestion, imageUrl);
                     }
@@ -157,37 +149,4 @@ public class YiDunUtils {
         }
     }
 
-    private boolean isPoliticsContent(ImageV5AntispamResp antispam) {
-        if (antispam.getLabels() == null || antispam.getLabels().isEmpty()) {
-            return false;
-        }
-
-        for (ImageV5LabelDetail label : antispam.getLabels()) {
-            Integer labelValue = label.getLabel();
-            if (labelValue != null && labelValue == 500) {
-                // Check if this label has actual subLabels (meaning it's actually triggered)
-                if (label.getSubLabels() != null && !label.getSubLabels().isEmpty()) {
-                    return true;
-                }
-            }
-            
-            // Check subLabels for politics-related keywords (as backup check)
-            if (label.getSubLabels() != null && !label.getSubLabels().isEmpty()) {
-                for (ImageV5SubLabelDetail subLabel : label.getSubLabels()) {
-                    String subLabelText = subLabel.getSubLabel();
-                    if (subLabelText != null) {
-                        String lowerSubLabel = subLabelText.toLowerCase();
-                        // Check for politics-related keywords
-                        if (lowerSubLabel.contains("politics") || 
-                            lowerSubLabel.contains("政治") ||
-                            lowerSubLabel.contains("politician") ||
-                            lowerSubLabel.contains("politic")) {
-                            return true;
-                        }
-                    }
-                }
-            }
-        }
-        return false;
-    }
 }
