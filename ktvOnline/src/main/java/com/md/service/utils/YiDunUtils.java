@@ -67,13 +67,13 @@ public class YiDunUtils {
 
             TextCheckResult result = response.getResult();
             if (result == null) {
-                log.info("Yidun text moderation result is null, treat as pass - content: {}", msg);
-                return;
+                log.error("Yidun text moderation result is null, reject content - content: {}", msg);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
             if (result.getAntispam() == null) {
-                log.info("Yidun text moderation antispam is null, treat as pass - content: {}", msg);
-                return;
+                log.error("Yidun text moderation antispam is null, reject content - content: {}", msg);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
             TextCheckResult.Antispam antispam = result.getAntispam();
@@ -148,16 +148,16 @@ public class YiDunUtils {
                 return;
             }
 
-            // Check if result is empty, if so, treat as pass (consistent with Go implementation)
+            // Check if result is empty, reject if empty
             if (response.getResult() == null || response.getResult().isEmpty()) {
-                log.info("Yidun image moderation response result is empty, treat as pass - imageUrl: {}", imageUrl);
-                return;
+                log.error("Yidun image moderation response result is empty, reject image - imageUrl: {}", imageUrl);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
             ImageV5Result result = response.getResult().get(0);
             if (result.getAntispam() == null) {
-                log.info("Yidun image moderation antispam is null, treat as pass - imageUrl: {}", imageUrl);
-                return;
+                log.error("Yidun image moderation antispam is null, reject image - imageUrl: {}", imageUrl);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
             ImageV5AntispamResp antispam = result.getAntispam();
