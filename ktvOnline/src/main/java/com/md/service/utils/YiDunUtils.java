@@ -54,15 +54,16 @@ public class YiDunUtils {
             TextCheckResponse response = textClient.syncCheckText(request);
 
             if (response == null) {
-                log.error("Yidun text moderation API call failed - response is null");
-                return;
+                log.error("Yidun text moderation API call failed - response is null, reject content - content: {}", msg);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
             log.info("Yidun text moderation response - code: {}", response.getCode());
 
             if (response.getCode() != 200) {
-                log.error("Yidun text moderation API call failed - code: {}, msg: {}", response.getCode(), response.getMsg());
-                return;
+                log.error("Yidun text moderation API call failed - code: {}, msg: {}, reject content - content: {}", 
+                        response.getCode(), response.getMsg(), msg);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
             TextCheckResult result = response.getResult();
@@ -78,27 +79,26 @@ public class YiDunUtils {
 
             TextCheckResult.Antispam antispam = result.getAntispam();
 
-            // suggestion: 0-pass, 1-suspect, 2-reject (consistent with Go implementation)
+            // suggestion: 0-pass, 1-suspect, 2-reject
             Integer suggestion = antispam.getSuggestion();
             if (suggestion == null) {
-                // suggestion is null, treat as pass (consistent with Go implementation)
-                log.info("Yidun text moderation passed - suggestion: null, content: {}", msg);
-                return;
+                log.error("Yidun text moderation suggestion is null, reject content - content: {}", msg);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
-            // Check suspicious content first (consistent with Go implementation)
+            // Check suspicious content - reject suspicious content
             if (suggestion == 1) {
-                log.warn("Yidun detected suspicious content - suggestion: {}, content: {}", suggestion, msg);
-                return;
+                log.error("Yidun detected suspicious content - suggestion: {}, content: {}", suggestion, msg);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
-            // Check rejected content (consistent with Go implementation)
+            // Check rejected content
             if (suggestion == 2) {
                 log.error("Yidun detected illegal content - suggestion: {}, content: {}", suggestion, msg);
                 throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
-            // suggestion == 0 or other values, treat as pass (consistent with Go implementation)
+            // suggestion == 0, treat as pass
             log.info("Yidun text moderation passed - suggestion: {}, content: {}", suggestion, msg);
 
             if (antispam.getLabels() != null && !antispam.getLabels().isEmpty()) {
@@ -137,15 +137,16 @@ public class YiDunUtils {
             ImageV5CheckResponse response = imageClient.syncCheckImage(request);
 
             if (response == null) {
-                log.error("Yidun image moderation API call failed - response is null");
-                return;
+                log.error("Yidun image moderation API call failed - response is null, reject image - imageUrl: {}", imageUrl);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
             log.info("Yidun image moderation response - code: {}", response.getCode());
 
             if (response.getCode() != 200) {
-                log.error("Yidun image moderation API call failed - code: {}, msg: {}", response.getCode(), response.getMsg());
-                return;
+                log.error("Yidun image moderation API call failed - code: {}, msg: {}, reject image - imageUrl: {}", 
+                        response.getCode(), response.getMsg(), imageUrl);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
             // Check if result is empty, reject if empty
@@ -162,27 +163,26 @@ public class YiDunUtils {
 
             ImageV5AntispamResp antispam = result.getAntispam();
 
-            // suggestion: 0-pass, 1-suspect, 2-reject (consistent with Go implementation)
+            // suggestion: 0-pass, 1-suspect, 2-reject
             Integer suggestion = antispam.getSuggestion();
             if (suggestion == null) {
-                // suggestion is null, treat as pass (consistent with Go implementation)
-                log.info("Yidun image moderation passed - suggestion: null, imageUrl: {}", imageUrl);
-                return;
+                log.error("Yidun image moderation suggestion is null, reject image - imageUrl: {}", imageUrl);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
-            // Check suspicious content first (consistent with Go implementation)
+            // Check suspicious content - reject suspicious content
             if (suggestion == 1) {
-                log.warn("Yidun detected suspicious image - suggestion: {}, imageUrl: {}", suggestion, imageUrl);
-                return;
+                log.error("Yidun detected suspicious image - suggestion: {}, imageUrl: {}", suggestion, imageUrl);
+                throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
-            // Check rejected content (consistent with Go implementation)
+            // Check rejected content
             if (suggestion == 2) {
                 log.error("Yidun detected illegal content - suggestion: {}, imageUrl: {}", suggestion, imageUrl);
                 throw new BaseException(ErrorCodeEnum.please_dont_upload_illegal_content);
             }
 
-            // suggestion == 0 or other values, treat as pass (consistent with Go implementation)
+            // suggestion == 0, treat as pass
             log.info("Yidun image moderation passed - suggestion: {}, imageUrl: {}", suggestion, imageUrl);
 
         } catch (BaseException e) {
