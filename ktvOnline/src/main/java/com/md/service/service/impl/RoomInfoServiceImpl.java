@@ -23,7 +23,7 @@ import com.md.service.service.RoomUsersService;
 import com.md.service.service.UsersService;
 import com.md.service.utils.MdStringUtils;
 import com.md.service.utils.RtmTokenBuilderSample;
-import com.md.service.utils.TupuUtils;
+import com.md.service.utils.YiDunUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.eclipse.jetty.util.security.Credential;
 import org.redisson.api.RLock;
@@ -60,7 +60,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
     private RoomSongService roomSongService;
 
     @Resource
-    private TupuUtils tupuUtils;
+    private YiDunUtils yidunUtils;
 
     @Resource
     private RtmTokenBuilderSample rtmTokenBuilderSample;
@@ -88,7 +88,7 @@ public class RoomInfoServiceImpl extends ServiceImpl<RoomInfoMapper, RoomInfo> i
 //            throw new BaseException(ErrorCodeEnum.there_is_no_closed_room,ErrorCodeEnum.there_is_no_closed_room.getMessage());
         }
         RoomInfo roomInfo = new RoomInfo();
-        tupuUtils.checkTupuText(form.getName());
+        yidunUtils.checkYidunText(form.getName());
         roomInfo.setName(form.getName());
         roomInfo.setIsPrivate(form.getIsPrivate());
         if(form.getIsPrivate().equals(1)){

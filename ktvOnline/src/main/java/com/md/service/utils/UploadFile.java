@@ -59,7 +59,7 @@ public class UploadFile {
     private String logObjectNameUrl;
 
     @Resource
-    private YiTuUtils yiTuUtils;
+    private YiDunUtils yidunUtils;
 
     @Resource
     private RedisTemplate<String, Object> redisTemplate;
@@ -117,7 +117,7 @@ public class UploadFile {
             // 上传字符串。
             ossClient.putObject(putObjectRequest);
             String url = "https://" + bucketName + "." + endpoint + "/" + objectName;
-            yiTuUtils.checkImage(url);
+            yidunUtils.checkImage(url);
             return url;
         } catch (OSSException oe) {
             System.out.println("Caught an OSSException, which means your request made it to OSS, "
@@ -155,7 +155,7 @@ public class UploadFile {
             log.info("keyPrefix：{}  sums size:{}", keyPrefix, sums.size());
             for (OSSObjectSummary s : sums) {
                 Thread.sleep(1000);
-                yiTuUtils.checkImage("https://" + bucketName + "." + endpoint + "/" + s.getKey());
+                yidunUtils.checkImage("https://" + bucketName + "." + endpoint + "/" + s.getKey());
                 mark = s.getKey();
             }
             redisTemplate.opsForValue().set(keyPrefix, mark, 7, TimeUnit.DAYS);
